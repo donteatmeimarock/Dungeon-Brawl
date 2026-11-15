@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dungeon Brawl - 1v1 PvP Arena (Best of 5)</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="brand">
+      <span style="font-size: 26px;">⚔️</span>
+      <div>
+        <div class="brand-title">DUNGEON BRAWL</div>
+      </div>
+      <div class="brand-badge">BEST OF 5 PvP</div>
+    </div>
+
+    <div class="header-right">
+      <div class="coin-pill">
+        <span>🪙</span>
+        <span id="header-coin-count">100</span>
+      </div>
+
+      <input type="text" id="player-name-input" class="player-name-input" maxlength="14" placeholder="Your Name" value="Gladiator">
+
+      <button id="audio-toggle-btn" class="icon-btn" title="Toggle Sound">🔊</button>
+    </div>
+  </header>
+
+  <!-- Main Views Container -->
+  <main>
+
+    <!-- 1. MAIN MENU VIEW -->
+    <section id="view-menu" class="view menu-view active">
+      <div class="hero-banner">
+        <h1>THE ARENA OF CHAMPIONS</h1>
+        <p>Challenge another warrior on any device! Equip your 5 required battle slots and fight in a Best-of-5 duel!</p>
+      </div>
+
+      <!-- Daily Win Bar -->
+      <div id="menu-daily-win-bar" class="daily-win-card"></div>
+
+      <div class="menu-cards-container">
+        <!-- Host Card -->
+        <div class="action-card">
+          <h2><span>👑</span> Host Challenge</h2>
+          <p>Create a private arena room with a challenge code. Share the code or QR with a friend on mobile or desktop!</p>
+          <button id="btn-create-challenge" class="btn-primary">Create Duel Room</button>
+        </div>
+
+        <!-- Join Card -->
+        <div class="action-card">
+          <h2><span>⚔️</span> Join Challenge</h2>
+          <p>Enter the 5-character challenge code provided by your opponent to connect directly.</p>
+          <div class="challenge-input-group">
+            <input type="text" id="input-challenge-code" class="challenge-input" placeholder="CODE" maxlength="8" autocomplete="off" spellcheck="false">
+            <button id="btn-join-challenge" class="btn-secondary">Join</button>
+          </div>
+        </div>
+
+        <!-- Solo / Bot Practice Card -->
+        <div class="action-card">
+          <h2><span>🤖</span> Solo Training</h2>
+          <p>Test your weapons, bows, armor, amulets, and spell synergies against AI Champions!</p>
+          <div class="difficulty-select-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="difficulty-label">Difficulty:</span>
+              <span id="bot-reward-display" style="font-size: 11px; font-weight: bold; color: var(--accent-gold);">Win: 🪙 120 Coins</span>
+            </div>
+            <div class="difficulty-pill-selector" id="bot-difficulty-selector">
+              <button type="button" class="difficulty-pill active" data-difficulty="normal" title="Normal: Sparring Partner (120 coins on win)">Normal</button>
+              <button type="button" class="difficulty-pill hard" data-difficulty="hard" title="Hard: Veteran Warrior (200 coins on win)">Hard</button>
+              <button type="button" class="difficulty-pill nightmare" data-difficulty="nightmare" title="Nightmare: Grandmaster (300 coins on win)">Nightmare</button>
+            </div>
+          </div>
+          <button id="btn-solo-practice" class="btn-secondary">Battle AI Champion</button>
+        </div>
+
+        <!-- Horde Survival Card (Solo or 2-Player Co-op) -->
+        <div class="action-card horde-card">
+          <h2><span>🧟</span> Horde Survival</h2>
+          <p>Endure relentless swarms of ravenous zombies! Deal with wave after wave of clawing undead. Play solo or team up with an ally in 2-player co-op!</p>
+          <div class="horde-btn-container" style="display: flex; gap: 8px; margin-top: auto;">
+            <button id="btn-horde-solo" class="btn-primary" style="flex: 1; padding: 10px 12px; font-size: 13px;">⚔️ Solo Horde</button>
+            <button id="btn-horde-coop" class="btn-secondary" style="flex: 1; padding: 10px 12px; font-size: 13px;">👥 Co-op (2P)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-bottom-nav">
+        <button id="btn-open-armory" class="btn-secondary" style="font-size: 16px; padding: 14px 28px;">
+          🛡️ Armory & Loadout
+        </button>
+        <button id="btn-open-shop" class="btn-primary" style="font-size: 16px; padding: 14px 28px;">
+          🛒 Weapons & Gear Shop
+        </button>
+        <button id="btn-open-save-codes" class="btn-secondary" style="font-size: 16px; padding: 14px 28px;">
+          💾 Save Codes
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. LOBBY / VERSUS MATCHUP VIEW -->
+    <section id="view-lobby" class="view lobby-view">
+      <div class="code-display-card">
+        <div style="font-size: 13px; font-weight: bold; color: var(--text-dim); text-transform: uppercase;">
+          Challenge Code
+        </div>
+        <div id="lobby-challenge-code" class="code-badge">BRAWL</div>
+        
+        <div class="code-actions">
+          <button id="btn-copy-code" class="btn-secondary" style="padding: 6px 14px; font-size: 13px;">📋 Copy Code</button>
+          <button id="btn-copy-link" class="btn-secondary" style="padding: 6px 14px; font-size: 13px;">🔗 Copy Direct Link</button>
+        </div>
+
+        <!-- QR Code for instant phone camera scanning -->
+        <div id="qrcode-container"></div>
+        <div style="font-size: 12px; color: var(--text-dim);">Point your phone camera to join instantly</div>
+        
+        <div id="lobby-status-msg" style="margin-top: 10px; font-weight: bold; color: var(--secondary);">
+          Waiting for opponent to connect...
+        </div>
+      </div>
+
+      <!-- Versus Cards -->
+      <div class="versus-matchup-container">
+        <!-- Player 1 (You) -->
+        <div class="player-card local">
+          <div class="player-card-header">
+            <span id="lobby-local-name" class="player-card-title">You (Gladiator)</span>
+            <span id="lobby-local-ready" class="ready-pill">NOT READY</span>
+          </div>
+          <div id="lobby-local-loadout" class="gear-summary-list">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <div class="versus-badge" id="lobby-match-type-badge">
+          <span id="lobby-match-type-title">VS</span>
+          <span id="lobby-match-type-subtitle">BEST OF 5</span>
+        </div>
+
+        <!-- Player 2 (Challenger) -->
+        <div class="player-card remote">
+          <div class="player-card-header">
+            <span id="lobby-remote-name" class="player-card-title">Challenger</span>
+            <span id="lobby-remote-ready" class="ready-pill">CONNECTING...</span>
+          </div>
+          <div id="lobby-remote-loadout" class="gear-summary-list">
+            <div class="gear-summary-item">Waiting for opponent to connect...</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 14px; margin-top: 10px;">
+        <button id="btn-leave-lobby" class="btn-secondary">Leave Room</button>
+        <button id="btn-lobby-armory" class="btn-secondary">Edit Loadout</button>
+        <button id="btn-toggle-ready" class="btn-primary" style="min-width: 180px;">READY FOR BATTLE</button>
+      </div>
+    </section>
+
+    <!-- 3. BATTLE ARENA VIEW -->
+    <section id="view-battle" class="view battle-view">
+      <div class="arena-wrapper">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Top In-Game HUD -->
+        <div class="battle-hud-top">
+          <!-- Local Player Bar -->
+          <div class="hud-player-box">
+            <div class="hud-player-header">
+              <span id="hud-local-name" style="color: #69f0ae;">You</span>
+              <span id="hud-local-hp-num">1000/1000</span>
+            </div>
+            <div class="hud-bar-container">
+              <div id="hud-local-hp-bar" class="hud-bar-fill local" style="width: 100%;"></div>
+              <div id="hud-local-shield-bar" class="hud-bar-fill shield" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Scoreboard in Center -->
+          <div class="hud-center-score">
+            <div class="round-label" id="hud-round-label">ROUND 1 OF 5</div>
+            <div class="score-gems-row">
+              <div id="hud-score-local" style="display: flex; gap: 4px;">
+                <span class="score-gem" id="lgem-1">💎</span>
+                <span class="score-gem" id="lgem-2">💎</span>
+                <span class="score-gem" id="lgem-3">💎</span>
+              </div>
+              <span style="font-weight: 900; color: #fff; font-size: 16px;">:</span>
+              <div id="hud-score-remote" style="display: flex; gap: 4px;">
+                <span class="score-gem" id="rgem-1">💎</span>
+                <span class="score-gem" id="rgem-2">💎</span>
+                <span class="score-gem" id="rgem-3">💎</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Remote Player Bar -->
+          <div class="hud-player-box" style="text-align: right;">
+            <div class="hud-player-header">
+              <span id="hud-remote-hp-num">1000/1000</span>
+              <span id="hud-remote-name" style="color: #ff5252;">Opponent</span>
+            </div>
+            <div class="hud-bar-container">
+              <div id="hud-remote-hp-bar" class="hud-bar-fill remote" style="width: 100%; float: right;"></div>
+              <div id="hud-remote-shield-bar" class="hud-bar-fill shield" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Touch Controls -->
+        <div id="mobile-touch-overlay" class="mobile-touch-controls">
+          <div id="touch-joystick" class="touch-joystick-zone"></div>
+          <div class="touch-action-buttons">
+            <div id="touch-sword" class="touch-btn">🗡️</div>
+            <div id="touch-bow" class="touch-btn">🏹</div>
+            <div id="touch-dash" class="touch-btn">⚡</div>
+            <div id="touch-spell" class="touch-btn">✨</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Action Hot Bar (Moved below arena so it doesn't cover the battlefield) -->
+      <div class="battle-hud-bottom hotbar-container">
+        <!-- 1. Close Range (Sword / Melee) -->
+        <div class="action-hud-slot hotbar-slot active" id="hotbar-slot-1" title="Slot 1: Close Range (Sword) [Press 1 to Equip]">
+          <div id="hud-slot-sword" class="action-hud-icon-btn">
+            <span class="hotbar-badge">1</span>
+            <span id="hud-icon-sword">🗡️</span>
+            <div id="hud-cd-sword" class="cooldown-overlay" style="display: none;"></div>
+          </div>
+          <span class="action-hud-key">1 · Close</span>
+        </div>
+
+        <!-- 2. Ranged (Bow) -->
+        <div class="action-hud-slot hotbar-slot" id="hotbar-slot-2" title="Slot 2: Ranged (Bow) [Press 2 to Equip - Clicks shoot projectiles]">
+          <div id="hud-slot-bow" class="action-hud-icon-btn">
+            <span class="hotbar-badge">2</span>
+            <span id="hud-icon-bow">🏹</span>
+            <div id="hud-cd-bow" class="cooldown-overlay" style="display: none;"></div>
+          </div>
+          <span class="action-hud-key">2 · Ranged</span>
+        </div>
+
+        <!-- 3. Spell 1 -->
+        <div class="action-hud-slot hotbar-slot" id="hotbar-slot-3" title="Slot 3: Spell 1 [Press 3 or Q]">
+          <div id="hud-slot-spell-0" class="action-hud-icon-btn">
+            <span class="hotbar-badge">3</span>
+            <span id="hud-icon-spell-0">🔥</span>
+            <div id="hud-cd-spell-0" class="cooldown-overlay" style="display: none;"></div>
+          </div>
+          <span class="action-hud-key">3 · Spell 1</span>
+        </div>
+
+        <!-- 4. Spell 2 -->
+        <div class="action-hud-slot hotbar-slot" id="hotbar-slot-4" title="Slot 4: Spell 2 [Press 4 or C]">
+          <div id="hud-slot-spell-1" class="action-hud-icon-btn">
+            <span class="hotbar-badge">4</span>
+            <span id="hud-icon-spell-1">❄️</span>
+            <div id="hud-cd-spell-1" class="cooldown-overlay" style="display: none;"></div>
+          </div>
+          <span class="action-hud-key">4 · Spell 2</span>
+        </div>
+
+        <!-- 5. Spell 3 -->
+        <div class="action-hud-slot hotbar-slot" id="hotbar-slot-5" title="Slot 5: Spell 3 [Press 5, R, or F]">
+          <div id="hud-slot-spell-2" class="action-hud-icon-btn">
+            <span class="hotbar-badge">5</span>
+            <span id="hud-icon-spell-2">✨</span>
+            <div id="hud-cd-spell-2" class="cooldown-overlay" style="display: none;"></div>
+          </div>
+          <span class="action-hud-key">5 · Spell 3</span>
+        </div>
+
+        <div class="hotbar-divider"></div>
+
+        <!-- Dash (Mobility) -->
+        <div class="action-hud-slot hotbar-slot hotbar-slot-dash" id="hotbar-slot-dash" title="Mobility: Dash [Press Space]">
+          <div id="hud-slot-dash" class="action-hud-icon-btn">
+            <span class="hotbar-badge">␣</span>
+            <span>⚡</span>
+            <div id="hud-cd-dash" class="cooldown-overlay" style="display: none;"></div>
+          </div>
+          <span class="action-hud-key">Space · Dash</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= ARMORY & LOADOUT MODAL ================= -->
+  <div id="modal-armory" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>🛡️ Armory & Loadout Management</h2>
+        <button class="close-btn" id="btn-close-armory">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Loadout Requirement Rule -->
+        <div id="armory-status-alert" class="loadout-status-alert valid">
+          <span>✅</span>
+          <div id="armory-status-text">Your loadout is complete! All 5 battle slots are equipped.</div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 14px;">
+          <strong>Battle Requirement:</strong> You must equip 1 Sword (melee), 1 Bow (ranged), 1 Armor (protection), 1 Amulet (small buff), and 3 Spells before entering battle. Click any slot below to change gear!
+        </p>
+
+        <!-- 5 Mandatory Categories Grid -->
+        <div class="loadout-slots-grid">
+          <div class="loadout-slot-box equipped" id="slot-card-sword" data-slot="sword">
+            <span class="slot-tag">⚔️ Sword (Melee)</span>
+            <span class="slot-icon" id="loadout-icon-sword">🗡️</span>
+            <span class="slot-name" id="loadout-name-sword">Rusty Iron Blade</span>
+          </div>
+
+          <div class="loadout-slot-box equipped" id="slot-card-bow" data-slot="bow">
+            <span class="slot-tag">🏹 Bow (Ranged)</span>
+            <span class="slot-icon" id="loadout-icon-bow">🏹</span>
+            <span class="slot-name" id="loadout-name-bow">Hunter's Shortbow</span>
+          </div>
+
+          <div class="loadout-slot-box equipped" id="slot-card-armor" data-slot="armor">
+            <span class="slot-tag">🛡️ Armor (Protection)</span>
+            <span class="slot-icon" id="loadout-icon-armor">🦺</span>
+            <span class="slot-name" id="loadout-name-armor">Leather Vest</span>
+          </div>
+
+          <div class="loadout-slot-box equipped" id="slot-card-amulet" data-slot="amulet">
+            <span class="slot-tag">📿 Amulet (Buff)</span>
+            <span class="slot-icon" id="loadout-icon-amulet">🥉📿</span>
+            <span class="slot-name" id="loadout-name-amulet">Charm of Vigor</span>
+          </div>
+
+          <div class="loadout-slot-box equipped" id="slot-card-spell-0" data-slot="spell" data-spell-index="0">
+            <span class="slot-tag">✨ Spell 1</span>
+            <span class="slot-icon" id="loadout-icon-spell-0">🔥</span>
+            <span class="slot-name" id="loadout-name-spell-0">Fireball</span>
+          </div>
+
+          <div class="loadout-slot-box equipped" id="slot-card-spell-1" data-slot="spell" data-spell-index="1">
+            <span class="slot-tag">✨ Spell 2</span>
+            <span class="slot-icon" id="loadout-icon-spell-1">❄️</span>
+            <span class="slot-name" id="loadout-name-spell-1">Frost Nova</span>
+          </div>
+
+          <div class="loadout-slot-box equipped" id="slot-card-spell-2" data-slot="spell" data-spell-index="2">
+            <span class="slot-tag">✨ Spell 3</span>
+            <span class="slot-icon" id="loadout-icon-spell-2">✨</span>
+            <span class="slot-name" id="loadout-name-spell-2">Holy Mend</span>
+          </div>
+        </div>
+
+        <h3 id="armory-drawer-title" style="font-size: 16px; margin-bottom: 12px; color: var(--secondary);">
+          Available Swords
+        </h3>
+
+        <!-- Available unlocked items to equip -->
+        <div id="armory-catalog-grid" class="items-catalog-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= WEAPONS & GEAR SHOP MODAL ================= -->
+  <div id="modal-shop" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h2>🛒 Weapons & Gear Armory Shop</h2>
+          <div class="coin-pill">
+            <span>🪙</span>
+            <span id="shop-coin-count">100</span>
+          </div>
+        </div>
+        <button class="close-btn" id="btn-close-shop">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 14px;">
+          Win matches and rounds in Best-of-5 PvP to earn Gold Coins! Spend coins to unlock powerful legendary weapons, armor, amulets, and magic spells.
+        </p>
+
+        <!-- Category Filters -->
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-category="all">All Items</button>
+          <button class="filter-tab" data-category="swords">⚔️ Swords</button>
+          <button class="filter-tab" data-category="bows">🏹 Bows</button>
+          <button class="filter-tab" data-category="armors">🛡️ Armors</button>
+          <button class="filter-tab" data-category="amulets">📿 Amulets</button>
+          <button class="filter-tab" data-category="spells">✨ Spells</button>
+        </div>
+
+        <!-- Shop Catalog -->
+        <div id="shop-items-grid" class="items-catalog-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MATCH RESULTS MODAL ================= -->
+  <div id="modal-results" class="modal-overlay">
+    <div class="results-modal-box">
+      <div id="results-title" class="results-title victory">🏆 MATCH VICTORY! 🏆</div>
+      <div id="results-subtext" style="color: var(--text-dim); font-size: 16px;">
+        You conquered your opponent in the Best of 5 duel!
+      </div>
+
+      <div id="results-score" style="font-size: 28px; font-weight: 900; color: #fff;">
+        Score: 3 - 1
+      </div>
+
+      <div class="results-reward-pill">
+        <span>🪙</span>
+        <span id="results-coins-won">+120 Gold Coins!</span>
+      </div>
+
+      <div id="results-daily-win-bar" class="daily-win-card compact"></div>
+
+      <div id="results-auto-teleport" class="results-auto-teleport" style="display: none;">
+        🌀 Teleporting to Menu in <span id="teleport-countdown-num">10</span>s...
+      </div>
+
+      <div class="results-actions">
+        <button id="btn-results-rematch" class="btn-primary" style="padding: 12px 24px;">⚔️ Rematch</button>
+        <button id="btn-results-shop" class="btn-secondary" style="padding: 12px 24px;">🛒 Shop</button>
+        <button id="btn-results-menu" class="btn-secondary" style="padding: 12px 24px;">🚪 Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SAVE CODES MODAL ================= -->
+  <div id="modal-save-codes" class="modal-overlay">
+    <div class="modal-box save-code-modal-box">
+      <div class="modal-header">
+        <h2>💾 Save Codes (Backup & Transfer)</h2>
+        <button class="close-btn" id="btn-close-save-codes">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">
+          Copy your Save Code to back up your coins, unlocked gear, loadout, and daily win progress — or paste a code below to load it on any browser or device!
+        </p>
+
+        <div id="save-code-feedback" class="save-code-feedback" style="display: none;"></div>
+
+        <div class="save-code-section">
+          <div class="save-code-label-row">
+            <label for="save-code-export-box">Your Current Save Code</label>
+            <button id="btn-copy-save-code" class="btn-secondary" style="padding: 6px 14px; font-size: 13px;">📋 Copy Code</button>
+          </div>
+          <textarea id="save-code-export-box" class="save-code-textarea" rows="3" readonly spellcheck="false"></textarea>
+        </div>
+
+        <div class="save-code-section" style="margin-top: 18px;">
+          <div class="save-code-label-row">
+            <label for="save-code-import-box">Load a Save Code</label>
+          </div>
+          <textarea id="save-code-import-box" class="save-code-textarea" rows="3" placeholder="Paste your DB1-... save code here" spellcheck="false"></textarea>
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+            <button id="btn-clear-save-import" class="btn-secondary" style="padding: 9px 16px; font-size: 13px;">Clear</button>
+            <button id="btn-import-save-code" class="btn-primary" style="padding: 9px 20px; font-size: 14px;">📥 Load Save Code</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Scripts with Local + CDN Fallback -->
+  <script src="lib/peerjs.min.js"></script>
+  <script>
+    if (typeof Peer === 'undefined') {
+      document.write('<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"><\/script>');
+    }
+  </script>
+  <script src="lib/qrcode.min.js"></script>
+  <script>
+    if (typeof QRCode === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"><\/script>');
+    }
+  </script>
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/network.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

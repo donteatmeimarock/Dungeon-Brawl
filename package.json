@@ -1,0 +1,18 @@
+{
+  "name": "dungeonbrawl",
+  "version": "1.0.0",
+  "description": "Cross-device 1v1 PvP Best of 5 Arena with weapons progression & loadout system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "pvp",
+    "multiplayer",
+    "webrtc",
+    "arena",
+    "game"
+  ],
+  "author": "",
+  "license": "ISC"
+}
